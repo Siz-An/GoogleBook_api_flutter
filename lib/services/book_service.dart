@@ -17,7 +17,8 @@ class BookService {
   }
 
   Future<List<Book>> getRecommendations(String query) async {
-    final response = await http.get(Uri.parse('$apiUrl$query+recommended'));
+    final recommendationQuery = '$query+recommended';
+    final response = await http.get(Uri.parse('$apiUrl$recommendationQuery'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

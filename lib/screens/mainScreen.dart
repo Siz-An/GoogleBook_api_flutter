@@ -37,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Google Book'),
+        title: const Text('Google Book Api'),
         actions: [
           IconButton(
             icon: Icon(Icons.history),
