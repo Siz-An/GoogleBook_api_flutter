@@ -1,7 +1,7 @@
+import 'package:book_recomend/screens/mainScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/search_history.dart';
-import 'screens/main_screen.dart';
 
 void main() {
   runApp(MyApp());

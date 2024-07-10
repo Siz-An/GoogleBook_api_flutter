@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/search_history.dart';
+import '../services/book_service.dart';
+import 'book_details_screen.dart';
 
 class SearchHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchHistory = Provider.of<SearchHistory>(context);
+    final bookService = BookService();
 
     return Scaffold(
       appBar: AppBar(
@@ -16,8 +19,50 @@ class SearchHistoryScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(searchHistory.history[index]),
+            onTap: () async {
+              final recommendations = await bookService.getRecommendations(searchHistory.history[index]);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecommendationsScreen(recommendations: recommendations),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class RecommendationsScreen extends StatelessWidget {
+  final List<Book> recommendations;
+
+  RecommendationsScreen({required this.recommendations});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Recommendations'),
+      ),
+      body: ListView.builder(
+        itemCount: recommendations.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: recommendations[index].thumbnail != null
+                ? Image.network(recommendations[index].thumbnail!)
+                : null,
+            title: Text(recommendations[index].title),
+            subtitle: Text(recommendations[index].authors),
             onTap: () {
-              // Implement showing recommendations based on the selected search term
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookDetailsScreen(book: recommendations[index]),
+                ),
+              );
             },
           );
         },
