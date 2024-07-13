@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/search_history.dart';
+import '../models/book.dart';
 import '../services/book_service.dart';
 import 'book_details_screen.dart';
-import 'search_history_screen.dart';
+import '../models/bookmark.dart';
+import 'bookmark_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -22,29 +23,33 @@ class _MainScreenState extends State<MainScreen> {
     });
 
     final books = await _bookService.searchBooks(term);
-    final recommendations = await _bookService.getRecommendations(term);
+    String? author;
+    if (books.isNotEmpty) {
+      author = books.first.authors.split(', ').first;
+    }
+    final recommendations = author != null
+        ? await _bookService.getRecommendations(author)
+        : <Book>[];
 
     setState(() {
       _books = books;
-      _recommendedBooks = recommendations;
+      _recommendedBooks = recommendations.cast<Book>();
       _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final searchHistory = Provider.of<SearchHistory>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Google Book Api'),
         actions: [
           IconButton(
-            icon: Icon(Icons.history),
+            icon: Icon(Icons.bookmark),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SearchHistoryScreen()),
+                MaterialPageRoute(builder: (context) => BookmarkScreen()),
               );
             },
           ),
@@ -57,12 +62,11 @@ class _MainScreenState extends State<MainScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Search for books',
                   border: OutlineInputBorder(),
                 ),
                 onSubmitted: (term) {
-                  searchHistory.addSearchTerm(term);
                   _searchBooks(term);
                 },
               ),
@@ -104,6 +108,12 @@ class _MainScreenState extends State<MainScreen> {
               : null,
           title: Text(book.title),
           subtitle: Text(book.authors),
+          trailing: IconButton(
+            icon: Icon(Icons.bookmark_border),
+            onPressed: () {
+              Provider.of<Bookmark>(context, listen: false).addBookmark(book);
+            },
+          ),
           onTap: () {
             Navigator.push(
               context,
