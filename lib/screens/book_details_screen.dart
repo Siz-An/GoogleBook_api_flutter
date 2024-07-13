@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/book_service.dart';
+import 'package:provider/provider.dart';
+import '../models/book.dart';
+import '../models/bookmark.dart';
 
 class BookDetailsScreen extends StatelessWidget {
   final Book book;
@@ -8,9 +10,25 @@ class BookDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bookmark = Provider.of<Bookmark>(context);
+
+    bool isBookmarked = bookmark.bookmarkedBooks.contains(book);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(book.title),
+        actions: [
+          IconButton(
+            icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark),
+            onPressed: () {
+              if (isBookmarked) {
+                bookmark.removeBookmark(book);
+              } else {
+                bookmark.addBookmark(book);
+              }
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
